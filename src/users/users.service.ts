@@ -37,9 +37,6 @@ export class UsersService {
   }
 
   create(dto: CreateUserDto): Omit<User, 'password'> {
-    if (!dto.login || !dto.password) {
-      throw new BadRequestException('Missing required fields');
-    }
     const now = Date.now();
     const user: User = {
       id: randomUUID(),
