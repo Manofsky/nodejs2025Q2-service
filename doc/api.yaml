@@ -21,10 +21,10 @@ components:
         version:
           type: number
           example: 1
-        createAt:
+        createdAt:
           type: number
           example: 1655000000
-        updateAt:
+        updatedAt:
           type: number
           example: 1655000000
       required:
@@ -305,10 +305,10 @@ paths:
                   version:
                     type: integer
                     example: 2
-                  createAt:
+                  createdAt:
                     type: integer
                     example: 1655000000
-                  updateAt:
+                  updatedAt:
                     type: integer
                     example: 1655999999
         400:
