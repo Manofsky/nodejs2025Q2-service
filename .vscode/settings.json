@@ -1,0 +1,12 @@
+{
+  "eslint.format.enable": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "cSpell.enabled": true,
+  "cSpell.language": "en, ru",
+  "cSpell.diagnosticLevel": "Hint",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "files.eol": "\n"
+}
