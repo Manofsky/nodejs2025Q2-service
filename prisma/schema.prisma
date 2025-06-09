@@ -28,3 +28,12 @@ model Artist {
 
   @@map("artists")
 }
+
+model Album {
+  id       String  @id @default(uuid())
+  name     String
+  year     Int
+  artistId String? @map("artist_id")
+
+  @@map("albums")
+}
