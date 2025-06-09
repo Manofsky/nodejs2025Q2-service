@@ -94,12 +94,10 @@ export class AlbumsService {
 
     try {
       // Обновляем треки, связанные с этим альбомом
-      const tracks = await this.tracksService.findAll();
-      for (const track of tracks) {
-        if (track.albumId === id) {
-          track.albumId = null;
-        }
-      }
+      await this.prisma.track.updateMany({
+        where: { albumId: id },
+        data: { albumId: null },
+      });
 
       await this.prisma.album.delete({
         where: { id },

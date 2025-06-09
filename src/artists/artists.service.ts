@@ -85,20 +85,16 @@ export class ArtistsService {
 
     try {
       // Update tracks associated with this artist
-      const tracks = await this.tracksService.findAll();
-      for (const track of tracks) {
-        if (track.artistId === id) {
-          track.artistId = null;
-        }
-      }
+      await this.prisma.track.updateMany({
+        where: { artistId: id },
+        data: { artistId: null },
+      });
 
       // Update albums associated with this artist
-      const albums = await this.albumsService.findAll();
-      for (const album of albums) {
-        if (album.artistId === id) {
-          album.artistId = null;
-        }
-      }
+      await this.prisma.album.updateMany({
+        where: { artistId: id },
+        data: { artistId: null },
+      });
 
       await this.prisma.artist.delete({
         where: { id },
