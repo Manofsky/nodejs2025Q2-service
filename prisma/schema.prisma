@@ -47,3 +47,24 @@ model Track {
 
   @@map("tracks")
 }
+
+model FavoriteArtist {
+  id       String @id @default(uuid())
+  artistId String @unique @map("artist_id")
+
+  @@map("favorite_artists")
+}
+
+model FavoriteAlbum {
+  id      String @id @default(uuid())
+  albumId String @unique @map("album_id")
+
+  @@map("favorite_albums")
+}
+
+model FavoriteTrack {
+  id      String @id @default(uuid())
+  trackId String @unique @map("track_id")
+
+  @@map("favorite_tracks")
+}
