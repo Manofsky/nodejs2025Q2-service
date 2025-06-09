@@ -24,7 +24,7 @@ export class ArtistsController {
     status: 200,
     description: 'Return all artists',
   })
-  findAll() {
+  async findAll() {
     return this.artistsService.findAll();
   }
 
@@ -42,7 +42,7 @@ export class ArtistsController {
     status: 404,
     description: 'Artist was not found',
   })
-  findById(@Param('id') id: string) {
+  async findById(@Param('id') id: string) {
     return this.artistsService.findOne(id);
   }
 
@@ -56,7 +56,7 @@ export class ArtistsController {
     status: 400,
     description: 'Bad request. body does not contain required fields',
   })
-  create(@Body() dto: CreateArtistDto) {
+  async create(@Body() dto: CreateArtistDto) {
     return this.artistsService.create(dto);
   }
 
@@ -74,7 +74,7 @@ export class ArtistsController {
     status: 404,
     description: 'Artist was not found',
   })
-  update(@Param('id') id: string, @Body() dto: UpdateArtistDto) {
+  async update(@Param('id') id: string, @Body() dto: UpdateArtistDto) {
     return this.artistsService.update(id, dto);
   }
 
@@ -93,8 +93,8 @@ export class ArtistsController {
     status: 404,
     description: 'Artist was not found',
   })
-  remove(@Param('id') id: string) {
-    this.artistsService.remove(id);
+  async remove(@Param('id') id: string) {
+    await this.artistsService.remove(id);
     return;
   }
 }
