@@ -24,7 +24,7 @@ export class UsersController {
     status: 200,
     description: 'Return all users',
   })
-  findAll() {
+  async findAll() {
     return this.usersService.findAll();
   }
 
@@ -42,7 +42,7 @@ export class UsersController {
     status: 404,
     description: 'User not found',
   })
-  findById(@Param('id') id: string) {
+  async findById(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
@@ -56,7 +56,7 @@ export class UsersController {
     status: 400,
     description: 'Bad request. body does not contain required fields',
   })
-  create(@Body() dto: CreateUserDto) {
+  async create(@Body() dto: CreateUserDto) {
     return this.usersService.create(dto);
   }
 
@@ -78,7 +78,10 @@ export class UsersController {
     status: 404,
     description: 'User not found',
   })
-  updatePassword(@Param('id') id: string, @Body() dto: UpdatePasswordDto) {
+  async updatePassword(
+    @Param('id') id: string,
+    @Body() dto: UpdatePasswordDto,
+  ) {
     return this.usersService.updatePassword(
       id,
       dto.oldPassword,
@@ -101,8 +104,8 @@ export class UsersController {
     status: 404,
     description: 'User not found',
   })
-  remove(@Param('id') id: string) {
-    this.usersService.remove(id);
+  async remove(@Param('id') id: string) {
+    await this.usersService.remove(id);
     return;
   }
 }
