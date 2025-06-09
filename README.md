@@ -4,6 +4,7 @@
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+- Docker - [Download & Install Docker](https://docs.docker.com/engine/install/).
 
 ## Downloading
 
@@ -70,3 +71,31 @@ npm run format
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+## Docker
+
+### Running application using Docker
+
+```bash
+docker-compose up -d
+```
+
+This will start both the application and PostgreSQL database in containers.
+
+### Stopping containers
+
+```bash
+docker-compose down
+```
+
+### Viewing logs
+
+```bash
+docker-compose logs -f
+```
+
+### Docker Images
+
+The Docker images are available on Docker Hub:
+- Application: [clegrof/home-library-service](https://hub.docker.com/r/clegrof/home-library-service)
+- PostgreSQL: [clegrof/home-library-postgres](https://hub.docker.com/r/clegrof/home-library-postgres)

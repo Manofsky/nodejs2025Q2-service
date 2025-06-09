@@ -24,7 +24,7 @@ export class TracksController {
     status: 200,
     description: 'Return all tracks',
   })
-  findAll() {
+  async findAll() {
     return this.tracksService.findAll();
   }
 
@@ -42,7 +42,7 @@ export class TracksController {
     status: 404,
     description: 'Track was not found',
   })
-  findById(@Param('id') id: string) {
+  async findById(@Param('id') id: string) {
     return this.tracksService.findOne(id);
   }
 
@@ -56,7 +56,7 @@ export class TracksController {
     status: 400,
     description: 'Bad request. body does not contain required fields',
   })
-  create(@Body() dto: CreateTrackDto) {
+  async create(@Body() dto: CreateTrackDto) {
     return this.tracksService.create(dto);
   }
 
@@ -74,7 +74,7 @@ export class TracksController {
     status: 404,
     description: 'Track was not found',
   })
-  update(@Param('id') id: string, @Body() dto: UpdateTrackDto) {
+  async update(@Param('id') id: string, @Body() dto: UpdateTrackDto) {
     return this.tracksService.update(id, dto);
   }
 
@@ -93,8 +93,8 @@ export class TracksController {
     status: 404,
     description: 'Track was not found',
   })
-  remove(@Param('id') id: string) {
-    this.tracksService.remove(id);
+  async remove(@Param('id') id: string) {
+    await this.tracksService.remove(id);
     return;
   }
 }

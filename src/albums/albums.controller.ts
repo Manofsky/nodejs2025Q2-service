@@ -24,7 +24,7 @@ export class AlbumsController {
     status: 200,
     description: 'Return all albums',
   })
-  findAll() {
+  async findAll() {
     return this.albumsService.findAll();
   }
 
@@ -42,7 +42,7 @@ export class AlbumsController {
     status: 404,
     description: 'Album was not found',
   })
-  findById(@Param('id') id: string) {
+  async findById(@Param('id') id: string) {
     return this.albumsService.findOne(id);
   }
 
@@ -56,7 +56,7 @@ export class AlbumsController {
     status: 400,
     description: 'Bad request. body does not contain required fields',
   })
-  create(@Body() dto: CreateAlbumDto) {
+  async create(@Body() dto: CreateAlbumDto) {
     return this.albumsService.create(dto);
   }
 
@@ -74,7 +74,7 @@ export class AlbumsController {
     status: 404,
     description: 'Album was not found',
   })
-  update(@Param('id') id: string, @Body() dto: UpdateAlbumDto) {
+  async update(@Param('id') id: string, @Body() dto: UpdateAlbumDto) {
     return this.albumsService.update(id, dto);
   }
 
@@ -93,8 +93,8 @@ export class AlbumsController {
     status: 404,
     description: 'Album was not found',
   })
-  remove(@Param('id') id: string) {
-    this.albumsService.remove(id);
+  async remove(@Param('id') id: string) {
+    await this.albumsService.remove(id);
     return;
   }
 }

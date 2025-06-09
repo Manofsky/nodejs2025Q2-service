@@ -6,83 +6,123 @@ import {
 } from '@nestjs/common';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { randomUUID } from 'crypto';
 import { validate as isUuid } from 'uuid';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [];
+  constructor(private prisma: PrismaService) {}
 
-  findAll(): Omit<User, 'password'>[] {
-    // Return all users without password
-    return this.users.map((user) => {
-      const userCopy = { ...user };
+  async findAll(): Promise<Omit<User, 'password'>[]> {
+    const users = await this.prisma.user.findMany();
+    return users.map((user) => {
+      const userEntity = this.mapToEntity(user);
+      const userCopy = { ...userEntity };
       delete userCopy.password;
       return userCopy;
     });
   }
 
-  findOne(id: string): Omit<User, 'password'> {
+  async findOne(id: string): Promise<Omit<User, 'password'>> {
     if (!isUuid(id)) {
       throw new BadRequestException('Invalid userId');
     }
-    const user = this.users.find((u) => u.id === id);
+
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    // Exclude password
-    const userCopy = { ...user };
+
+    const userEntity = this.mapToEntity(user);
+    const userCopy = { ...userEntity };
     delete userCopy.password;
     return userCopy;
   }
 
-  create(dto: CreateUserDto): Omit<User, 'password'> {
-    const now = Date.now();
-    const user: User = {
-      id: randomUUID(),
-      login: dto.login,
-      password: dto.password,
-      version: 1,
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.users.push(user);
-    const userCopy = { ...user };
-    delete userCopy.password;
-    return userCopy;
+  async create(dto: CreateUserDto): Promise<Omit<User, 'password'>> {
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          login: dto.login,
+          password: dto.password,
+        },
+      });
+
+      const userEntity = this.mapToEntity(user);
+      const userCopy = { ...userEntity };
+      delete userCopy.password;
+      return userCopy;
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new BadRequestException('User with this login already exists');
+      }
+      throw error;
+    }
   }
 
-  updatePassword(
+  async updatePassword(
     id: string,
     oldPassword: string,
     newPassword: string,
-  ): Omit<User, 'password'> {
+  ): Promise<Omit<User, 'password'>> {
     if (!isUuid(id)) {
       throw new BadRequestException('Invalid userId');
     }
-    const user = this.users.find((u) => u.id === id);
+
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
     if (user.password !== oldPassword) {
       throw new ForbiddenException('Old password is wrong');
     }
-    user.password = newPassword;
-    user.version += 1;
-    user.updatedAt = Date.now();
-    const userCopy = { ...user };
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: {
+        password: newPassword,
+        version: { increment: 1 },
+      },
+    });
+
+    const userEntity = this.mapToEntity(updatedUser);
+    const userCopy = { ...userEntity };
     delete userCopy.password;
     return userCopy;
   }
 
-  remove(id: string): void {
+  async remove(id: string): Promise<void> {
     if (!isUuid(id)) {
       throw new BadRequestException('Invalid userId');
     }
-    const idx = this.users.findIndex((u) => u.id === id);
-    if (idx === -1) {
-      throw new NotFoundException('User not found');
+
+    try {
+      await this.prisma.user.delete({
+        where: { id },
+      });
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException('User not found');
+      }
+      throw error;
     }
-    this.users.splice(idx, 1);
+  }
+
+  private mapToEntity(prismaUser: any): User {
+    return {
+      id: prismaUser.id,
+      login: prismaUser.login,
+      password: prismaUser.password,
+      version: prismaUser.version,
+      createdAt: prismaUser.createdAt.getTime(),
+      updatedAt: prismaUser.updatedAt.getTime(),
+    };
   }
 }
