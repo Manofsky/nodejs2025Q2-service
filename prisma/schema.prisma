@@ -37,3 +37,13 @@ model Album {
 
   @@map("albums")
 }
+
+model Track {
+  id       String  @id @default(uuid())
+  name     String
+  artistId String? @map("artist_id")
+  albumId  String? @map("album_id")
+  duration Int
+
+  @@map("tracks")
+}
