@@ -25,6 +25,8 @@ export class PublicRouteGuard implements CanActivate {
     }
 
     // For all other routes, continue with JWT validation
-    return true;
+    // This guard should not block requests, it only marks public routes
+    // The actual JWT validation is done by JwtAuthGuard
+    return false;
   }
 }

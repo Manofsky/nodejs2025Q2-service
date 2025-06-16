@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -96,6 +97,7 @@ export class AuthService {
 
     return {
       accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
     };
   }
 
@@ -111,22 +113,58 @@ export class AuthService {
     return bcrypt.compare(plainPassword, hashedPassword);
   }
 
+  async refresh(refreshToken: string) {
+    try {
+      // Verify refresh token
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.JWT_SECRET_REFRESH_KEY || 'super-secret',
+      });
+
+      // Extract user info from payload
+      const { sub: userId, login } = payload;
+
+      // Generate new tokens
+      const tokens = await this.getTokens(userId, login);
+
+      this.loggingService.info(`Token refreshed for user: ${login}`);
+
+      return {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      };
+    } catch (error) {
+      this.loggingService.error(`Token refresh failed: ${error.message}`);
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
   async getTokens(userId: string, login: string) {
-    const [accessToken] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
           login,
         },
         {
-          secret: process.env.JWT_SECRET || 'super-secret',
-          expiresIn: '1h',
+          secret: process.env.JWT_SECRET_KEY || 'super-secret',
+          expiresIn: process.env.TOKEN_EXPIRE_TIME || '1h',
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          login,
+        },
+        {
+          secret: process.env.JWT_SECRET_REFRESH_KEY || 'super-secret',
+          expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME || '24h',
         },
       ),
     ]);
 
     return {
       accessToken,
+      refreshToken,
     };
   }
 }

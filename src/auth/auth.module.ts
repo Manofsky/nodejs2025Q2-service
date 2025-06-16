@@ -7,7 +7,6 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
-import { PublicRouteGuard } from './guards/public-route.guard';
 
 @Module({
   imports: [
@@ -15,8 +14,8 @@ import { PublicRouteGuard } from './guards/public-route.guard';
     PassportModule,
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET || 'super-secret',
-      signOptions: { expiresIn: '1h' },
+      secret: process.env.JWT_SECRET_KEY || 'super-secret',
+      signOptions: { expiresIn: process.env.TOKEN_EXPIRE_TIME || '1h' },
     }),
   ],
   controllers: [AuthController],
@@ -27,7 +26,6 @@ import { PublicRouteGuard } from './guards/public-route.guard';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-    PublicRouteGuard,
   ],
   exports: [AuthService],
 })

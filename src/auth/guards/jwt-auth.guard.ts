@@ -37,6 +37,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     // For all other routes, validate JWT token
+    this.loggingService.info(`Validating JWT token for route: ${url}`);
     return super.canActivate(context);
   }
 

@@ -40,22 +40,32 @@ To run all tests without authorization
 npm run test
 ```
 
-To run only one of all test suites
+### Running Tests
+
+#### Running Regular Tests (without authentication)
 
 ```
 npm run test -- <path to suite>
 ```
 
-To run all test with authorization
+#### Running Tests with Authentication
 
 ```
 npm run test:auth
 ```
 
-To run only specific test suite with authorization
+> **Note:** The `npm run test:auth` command runs all tests with the `TEST_MODE=auth` environment variable. Tests in the `test/auth/` directory should pass successfully, while other tests will fail with the "Authorization is not implemented" error - this is expected behavior as they try to access protected resources without a token.
+
+#### Running Only Authentication Tests (which should pass successfully)
 
 ```
-npm run test:auth -- <path to suite>
+npm run test:auth -- auth
+```
+
+#### Running Token Refresh Tests
+
+```
+npm run test:refresh
 ```
 
 ### Auto-fix and format
