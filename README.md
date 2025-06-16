@@ -76,15 +76,17 @@ For more information, visit: https://code.visualstudio.com/docs/editor/debugging
 
 ## Docker
 
-### Running application using Docker
+### Building and running application using Docker
 
 ```bash
+# Build the Docker images
+docker-compose build
+
+# Start the containers
 docker-compose up -d
 ```
 
-This will start both the application and PostgreSQL database in containers.
-
-> **Note:** The application uses Prisma ORM to connect to the PostgreSQL database. The Docker setup automatically generates the Prisma client during the image build process and configures the proper database connection URL (`postgres:5432` instead of `localhost:5432`).
+This will build the application image, then start both the application and PostgreSQL database in containers.
 
 ### Stopping containers
 
@@ -103,3 +105,34 @@ docker-compose logs -f
 The Docker images are available on Docker Hub:
 - Application: [clegrof/home-library-service](https://hub.docker.com/r/clegrof/home-library-service)
 - PostgreSQL: [clegrof/home-library-postgres](https://hub.docker.com/r/clegrof/home-library-postgres)
+
+## Logging & Error Handling
+
+The application includes a custom logging system with the following features:
+
+- Different logging levels (ERROR, WARN, INFO, DEBUG, VERBOSE)
+- Log file rotation based on file size
+- Separate error log file
+- Request and response logging
+- Global exception handling
+
+### Configuration
+
+Logging can be configured using environment variables in your `.env` file:
+
+```
+# Logging level: ERROR, WARN, INFO, DEBUG, VERBOSE (default: INFO)
+LOG_LEVEL=INFO
+
+# Maximum log file size in bytes before rotation (default: 10MB)
+MAX_LOG_FILE_SIZE=10485760
+```
+
+### Log Files
+
+Log files are stored in the `logs` directory:
+
+- `app.log` - Contains all logs
+- `error.log` - Contains only error logs
+
+When running in Docker, logs are also available via `docker-compose logs -f`.
