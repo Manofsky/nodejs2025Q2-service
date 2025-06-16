@@ -28,8 +28,14 @@ RUN npm ci --only=production
 # Copy built app from builder stage
 COPY --from=builder /app/dist ./dist
 
+# Copy prisma files
+COPY --from=builder /app/prisma ./prisma
+
 # Copy .env file example and rename it
 COPY .env.example .env
+
+# Generate Prisma client
+RUN npx prisma generate
 
 # Expose the application port
 EXPOSE 4000
