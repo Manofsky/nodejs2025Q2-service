@@ -2,7 +2,7 @@ import {
   Injectable,
   BadRequestException,
   ForbiddenException,
-  UnauthorizedException,
+  ConflictException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -33,12 +33,23 @@ export class AuthService {
       throw new BadRequestException('Invalid login or password');
     }
 
+    // Check if user exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        login,
+      },
+    });
+
+    if (existingUser) {
+      throw new ConflictException(`User with login ${login} already exists`);
+    }
+
     // Hash password
     const hashedPassword = await this.hashPassword(password);
 
     try {
       // Create user with hashed password
-      await this.prisma.user.create({
+      const user = await this.prisma.user.create({
         data: {
           login,
           password: hashedPassword,
@@ -47,10 +58,12 @@ export class AuthService {
 
       this.loggingService.info(`User created: ${login}`);
 
-      return {
-        statusCode: 201,
-        message: 'User created successfully',
+      const result = {
+        id: user.id,
+        login: user.login,
       };
+
+      return result;
     } catch (error) {
       if (error.code === 'P2002') {
         throw new BadRequestException('User with this login already exists');
@@ -95,10 +108,14 @@ export class AuthService {
 
     this.loggingService.info(`User logged in: ${login}`);
 
-    return {
+    const result = {
+      id: user.id,
+      login: user.login,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
     };
+
+    return result;
   }
 
   async hashPassword(password: string): Promise<string> {
@@ -120,8 +137,16 @@ export class AuthService {
         secret: process.env.JWT_SECRET_REFRESH_KEY || 'super-secret',
       });
 
-      // Extract user info from payload
-      const { sub: userId, login } = payload;
+      // Extract user info from payload - support both sub and userId fields
+      const userId = payload.sub || payload.userId;
+      const { login } = payload;
+
+      if (!userId || !login) {
+        this.loggingService.error(
+          'Invalid token payload: missing userId or login',
+        );
+        throw new Error('Invalid token payload');
+      }
 
       // Generate new tokens
       const tokens = await this.getTokens(userId, login);
@@ -134,7 +159,7 @@ export class AuthService {
       };
     } catch (error) {
       this.loggingService.error(`Token refresh failed: ${error.message}`);
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new ForbiddenException('Invalid refresh token');
     }
   }
 
@@ -142,7 +167,7 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: userId,
+          userId,
           login,
         },
         {
@@ -152,7 +177,7 @@ export class AuthService {
       ),
       this.jwtService.signAsync(
         {
-          sub: userId,
+          userId,
           login,
         },
         {

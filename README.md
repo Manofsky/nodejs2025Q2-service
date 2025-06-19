@@ -56,12 +56,6 @@ npm run test:auth
 
 > **Note:** The `npm run test:auth` command runs all tests with the `TEST_MODE=auth` environment variable. Tests in the `test/auth/` directory should pass successfully, while other tests will fail with the "Authorization is not implemented" error - this is expected behavior as they try to access protected resources without a token.
 
-#### Running Only Authentication Tests (which should pass successfully)
-
-```
-npm run test:auth -- auth
-```
-
 #### Running Token Refresh Tests
 
 ```
