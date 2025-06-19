@@ -28,8 +28,14 @@ RUN npm ci --only=production
 # Copy built app from builder stage
 COPY --from=builder /app/dist ./dist
 
+# Copy prisma files
+COPY --from=builder /app/prisma ./prisma
+
 # Copy .env file example and rename it
 COPY .env.example .env
+
+# Generate Prisma client
+RUN npx prisma generate
 
 # Expose the application port
 EXPOSE 4000
@@ -39,4 +45,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:4000/ || exit 1
 
 # Command to run the application
-CMD ["node", "dist/main"]
+CMD ["/bin/sh", "-c", "npx prisma migrate deploy && node dist/main"]
